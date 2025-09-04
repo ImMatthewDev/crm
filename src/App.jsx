@@ -1,28 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
-import Proyectos from "./pages/Proyectos";
 import Clientes from "./pages/Clientes";
 import Pagos from "./pages/Pagos";
+import Proyectos from "./pages/Proyectos";
+import Suscripciones from "./pages/Suscripciones"; // 👈 Nueva página
+import Sidebar from "./components/Sidebar";
 
-export default function App() {
+function App() {
   return (
     <Router>
       <div className="flex">
         <Sidebar />
-        <div className="flex-1 min-h-screen bg-gray-50 md:ml-64">
-          <Header />
-          <main className="p-4">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/proyectos" element={<Proyectos />} />
-              <Route path="/clientes" element={<Clientes />} />
-              <Route path="/pagos" element={<Pagos />} />
-            </Routes>
-          </main>
-        </div>
+        <main className="flex-1 ml-64 p-6">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/pagos" element={<Pagos />} />
+            <Route path="/proyectos" element={<Proyectos />} />
+            <Route path="/suscripciones" element={<Suscripciones />} /> {/* 👈 */}
+          </Routes>
+        </main>
       </div>
     </Router>
   );
 }
+
+export default App;

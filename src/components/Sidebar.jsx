@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Folder, Users, CreditCard, Menu } from "lucide-react";
+import { Home, Folder, Users, CreditCard, Calendar, Menu } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
@@ -10,6 +10,7 @@ export default function Sidebar() {
     { to: "/proyectos", label: "Proyectos", icon: <Folder size={18} /> },
     { to: "/clientes", label: "Clientes", icon: <Users size={18} /> },
     { to: "/pagos", label: "Pagos", icon: <CreditCard size={18} /> },
+    { to: "/suscripciones", label: "Suscripciones", icon: <Calendar size={18} /> }, // 👈 nuevo
   ];
 
   return (
