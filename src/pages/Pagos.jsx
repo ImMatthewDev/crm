@@ -1,3 +1,4 @@
+// src/pages/Pagos.jsx
 import React, { useEffect, useState } from "react";
 import {
   collection,
@@ -37,6 +38,7 @@ export default function Pagos() {
   const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
+    // Escucha en tiempo real, ordenando por vencimiento (más cercano primero)
     const q = query(collection(db, "pagos"), orderBy("vencimiento"));
     const unsub = onSnapshot(q, (snap) => {
       const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -71,9 +73,8 @@ export default function Pagos() {
     try {
       const ref = doc(db, "pagos", id);
       await updateDoc(ref, { estado: nuevoEstado });
-      setPagos((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, estado: nuevoEstado } : p))
-      );
+      // onSnapshot actualizará la UI, pero actualizamos localmente para respuesta instantánea
+      setPagos((prev) => prev.map((p) => (p.id === id ? { ...p, estado: nuevoEstado } : p)));
     } catch (err) {
       console.error("Error actualizando estado:", err);
       alert("No se pudo actualizar el estado.");
@@ -96,12 +97,12 @@ export default function Pagos() {
     <div className="p-4 md:p-6">
       <h1 className="text-2xl font-bold mb-4">Pagos</h1>
 
-      {/* Formulario */}
+      {/* Formulario - responsive */}
       <form
         onSubmit={handleAdd}
         className="bg-white shadow rounded-lg p-4 mb-6 grid gap-3 grid-cols-1 md:grid-cols-4"
       >
-        <div>
+        <div className="md:col-span-1">
           <label className="block text-sm text-gray-600 mb-1">Cliente</label>
           <input
             className="w-full border rounded px-3 py-2"
@@ -135,59 +136,64 @@ export default function Pagos() {
           />
         </div>
 
-        <div className="flex items-end">
+        <div className="flex items-end justify-end">
           <button
             type="submit"
             disabled={loadingAdd}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
           >
-            {loadingAdd ? "Guardando..." : "Agregar"}
+            {loadingAdd ? "Guardando..." : "Agregar pago"}
           </button>
         </div>
       </form>
 
-      {/* Cards móviles */}
-      <div className="space-y-4 md:hidden">
+      {/* Lista para móvil (cards) */}
+      <div className="space-y-3 md:hidden">
         {pagos.map((p) => (
-          <div
-            key={p.id}
-            className="bg-white p-4 rounded-lg shadow flex flex-col gap-3"
-          >
-            <div>
-              <h2 className="font-semibold text-lg">{p.cliente}</h2>
-              <p className="text-gray-700">{formatCurrency(p.monto)}</p>
-              <p className="text-sm text-gray-500">
-                Vence: {formatDate(p.vencimiento)}
-              </p>
-            </div>
+          <div key={p.id} className="bg-white p-3 rounded-lg shadow">
+            <div className="flex justify-between items-start gap-2">
+              <div>
+                <div className="font-semibold">{p.cliente}</div>
+                <div className="text-sm text-gray-600">{formatCurrency(p.monto)}</div>
+                <div className="text-sm text-gray-500">Vence: {formatDate(p.vencimiento)}</div>
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <select
-                value={p.estado}
-                onChange={(e) => handleChangeEstado(p.id, e.target.value)}
-                disabled={updatingId === p.id}
-                className="border rounded px-3 py-2"
-              >
-                <option value="Pendiente">Pendiente</option>
-                <option value="Pagado">Pagado</option>
-                <option value="Atrasado">Atrasado</option>
-              </select>
+              <div className="flex flex-col items-end gap-2">
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    p.estado === "Pagado"
+                      ? "bg-green-100 text-green-700"
+                      : p.estado === "Pendiente"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {p.estado}
+                </span>
 
-              <button
-                onClick={() => handleDelete(p.id)}
-                className="bg-red-500 text-white py-2 rounded"
-              >
-                Eliminar
-              </button>
+                <select
+                  value={p.estado}
+                  onChange={(e) => handleChangeEstado(p.id, e.target.value)}
+                  className="border rounded px-2 py-1 text-sm bg-white"
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Pagado">Pagado</option>
+                  <option value="Atrasado">Atrasado</option>
+                </select>
+
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="text-xs text-red-600 mt-1"
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         ))}
-        {pagos.length === 0 && (
-          <p className="text-center text-gray-500">No hay pagos aún.</p>
-        )}
       </div>
 
-      {/* Tabla desktop */}
+      {/* Tabla para md+ */}
       <div className="hidden md:block bg-white rounded-lg shadow">
         <table className="min-w-full text-left">
           <thead className="bg-gray-50">
@@ -229,10 +235,7 @@ export default function Pagos() {
             ))}
             {pagos.length === 0 && (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-4 py-6 text-center text-gray-500"
-                >
+                <td colSpan="5" className="px-4 py-6 text-center text-gray-500">
                   No hay pagos aún.
                 </td>
               </tr>
