@@ -1,27 +1,23 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
-import Clientes from "./pages/Clientes";
 import Proyectos from "./pages/Proyectos";
+import Clientes from "./pages/Clientes";
 import Pagos from "./pages/Pagos";
 
-function App() {
+export default function App() {
   return (
     <Router>
-      <div className="flex h-screen">
-        {/* Sidebar fijo a la izquierda */}
+      <div className="flex">
         <Sidebar />
-
-        {/* Contenedor principal */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-h-screen bg-gray-50 md:ml-64">
           <Header />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-6 ml-64">
+          <main className="p-4">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/clientes" element={<Clientes />} />
               <Route path="/proyectos" element={<Proyectos />} />
+              <Route path="/clientes" element={<Clientes />} />
               <Route path="/pagos" element={<Pagos />} />
             </Routes>
           </main>
@@ -30,5 +26,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

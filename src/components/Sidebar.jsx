@@ -1,29 +1,53 @@
-import { Link } from "react-router-dom";
-import { Home, FolderKanban, Users, CreditCard } from "lucide-react";
+import { useState } from "react";
+import { Home, Folder, Users, CreditCard, Menu } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar() {
+  const [open, setOpen] = useState(false);
+
+  const links = [
+    { to: "/", label: "Dashboard", icon: <Home size={18} /> },
+    { to: "/proyectos", label: "Proyectos", icon: <Folder size={18} /> },
+    { to: "/clientes", label: "Clientes", icon: <Users size={18} /> },
+    { to: "/pagos", label: "Pagos", icon: <CreditCard size={18} /> },
+  ];
+
   return (
-    <aside
-      className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 
-      ${isOpen ? "translate-x-0" : "-translate-x-64"} md:translate-x-0`}
-    >
-      <div className="p-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-800">Panel</h2>
-      </div>
-      <nav className="flex flex-col p-4 gap-2">
-        <Link to="/" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
-          <Home className="w-5 h-5" /> Dashboard
-        </Link>
-        <Link to="/proyectos" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
-          <FolderKanban className="w-5 h-5" /> Proyectos
-        </Link>
-        <Link to="/clientes" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
-          <Users className="w-5 h-5" /> Clientes
-        </Link>
-        <Link to="/pagos" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
-          <CreditCard className="w-5 h-5" /> Pagos
-        </Link>
-      </nav>
-    </aside>
+    <>
+      {/* Botón menú móvil */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-lg"
+        onClick={() => setOpen(!open)}
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-40
+        ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+      >
+        <div className="p-4 font-bold text-xl border-b">Panel</div>
+        <nav className="flex flex-col p-2 space-y-2">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
+              onClick={() => setOpen(false)} // cerrar en móvil
+            >
+              {link.icon}
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }
