@@ -1,18 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebase"; // 👈 asegúrate de importar tu firebase.js
 
 const Payments = () => {
-  const [payments, setPayments] = useState([
-    { id: 1, cliente: "Juan Pérez", monto: 120, estado: "Pendiente" },
-    { id: 2, cliente: "María Gómez", monto: 300, estado: "Pagado" },
-    { id: 3, cliente: "Carlos Ruiz", monto: 80, estado: "Atrasado" },
-  ]);
+  const [payments, setPayments] = useState([]);
 
-  const handleEstadoChange = (id, nuevoEstado) => {
-    setPayments((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, estado: nuevoEstado } : p
-      )
-    );
+  // 🔹 Obtener pagos desde Firebase
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "payments"));
+        const data = querySnapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        }));
+        setPayments(data);
+      } catch (error) {
+        console.error("Error al cargar pagos:", error);
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
+  // 🔹 Cambiar estado en Firebase
+  const handleEstadoChange = async (id, nuevoEstado) => {
+    try {
+      const paymentRef = doc(db, "payments", id);
+      await updateDoc(paymentRef, { estado: nuevoEstado });
+
+      // Actualizar en el estado local
+      setPayments((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, estado: nuevoEstado } : p
+        )
+      );
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+    }
   };
 
   return (
@@ -30,10 +55,7 @@ const Payments = () => {
           </thead>
           <tbody>
             {payments.map((p) => (
-              <tr
-                key={p.id}
-                className="border-b hover:bg-gray-50 transition"
-              >
+              <tr key={p.id} className="border-b hover:bg-gray-50 transition">
                 <td className="px-6 py-4">{p.cliente}</td>
                 <td className="px-6 py-4">${p.monto}</td>
                 <td className="px-6 py-4">
